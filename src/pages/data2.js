@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-function Chutlunds({ data }) {
+function data2({ data }) {
   // Render your component with fetched data
   return (
     <div>
@@ -27,4 +27,5 @@ export async function getServerSideProps() {
   };
 }
 
-export default Chutlunds;
+export default data2;
+export const runtime = "edge";
