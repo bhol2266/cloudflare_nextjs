@@ -9,7 +9,9 @@ export const config = {
 export default async function handler(req, res) {
 
     const body = await req.json();
-    let href = body.href
+ 
+
+    let href = JSON.parse(body.href)
     if (href.includes("https://spankbang.com/")) {
         href = href.replace("https://spankbang.com/", "https://spankbang.party/");
     }
