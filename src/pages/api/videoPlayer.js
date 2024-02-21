@@ -6,6 +6,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export const config = {
     api: {
+        runtime: 'edge',
         bodyParser: {
             sizeLimit: '1mb',
         },
