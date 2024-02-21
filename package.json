@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
     "extract-urls": "^1.4.1",
     "next": "14.1.0",
     "react": "^18",

@@ -1,16 +1,39 @@
-import { getRequestContext } from '@cloudflare/next-on-pages'
+const Cors = require('cors');
+
+// Initializing the cors middleware
+// You can read more about the available options here: https://github.com/expressjs/cors#configuration-options
+const cors = Cors({
+  methods: ["POST", "GET", "HEAD"],
+});
+
+// Helper method to wait for a middleware to execute before continuing
+// And to throw an error when an error happens in a middleware
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
+
+
+
+
 
 export const config = {
   runtime: 'edge',
 }
 
-export default async function handler(req) {
-  let responseText = 'Hello World'
 
-  const body = await req.json();
 
-  // log the body to the console
-  console.log({ body });
+export default async function handler(req, res) {
+  // Run the middleware
+  await runMiddleware(req, res, cors);
 
-  return new Response(responseText)
+  // Rest of the API logic
+  res.json({ message: "Hello Everyone!" });
 }
+

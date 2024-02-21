@@ -1,28 +1,47 @@
 import cheerio from 'cheerio';
 import { scrapeVideos } from './spangbang';
 import extractUrls from "extract-urls";
+import { NextResponse, NextRequest } from "next/server";
 
 
 export const config = {
-    runtime: 'edge',
+    api: {
+        bodyParser: {
+            sizeLimit: '1mb',
+        },
+    },
 }
+const Cors = require('cors');
+
+// Initializing the cors middleware
+// You can read more about the available options here: https://github.com/expressjs/cors#configuration-options
+const cors = Cors({
+    methods: ["POST", "GET", "HEAD"],
+});
+
+// Helper method to wait for a middleware to execute before continuing
+// And to throw an error when an error happens in a middleware
+function runMiddleware(req, res, fn) {
+    return new Promise((resolve, reject) => {
+        fn(req, res, (result) => {
+            if (result instanceof Error) {
+                return reject(result);
+            }
+            return resolve(result);
+        });
+    });
+}
+
+
+
+
+
 export default async function handler(req, res) {
 
 
-    // add the CORS headers to the response
-    res.headers.append('Access-Control-Allow-Credentials', "true")
-    res.headers.append('Access-Control-Allow-Origin', '*') // replace this your actual origin
-    res.headers.append('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT')
-    res.headers.append(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    )
+    await runMiddleware(req, res, cors);
 
-
-    const body = await req.json();
-
-
-    let href = JSON.parse(body.href)
+    let href = req.body.href
     if (href.includes("https://spankbang.com/")) {
         href = href.replace("https://spankbang.com/", "https://spankbang.party/");
     }
@@ -33,6 +52,7 @@ export default async function handler(req, res) {
     var pornstar = []
     var videodetails = {}
     var noVideos = false
+
 
 
     const scrape = async (body) => {
@@ -338,7 +358,8 @@ export default async function handler(req, res) {
         }
     }
 
-    const resData = {
+
+    let result = {
         videolink_qualities_screenshots: finalDataArray,
         preloaded_video_quality: preloaded_video_quality,
         relatedVideos: relatedVideos.length > 100 ? relatedVideos.slice(0, 100) : relatedVideos,
@@ -347,17 +368,14 @@ export default async function handler(req, res) {
         noVideos: noVideos,
     }
 
-    return new Response(resData)
 
 
 
-    res.status(200).json({
-        videolink_qualities_screenshots: finalDataArray,
-        preloaded_video_quality: preloaded_video_quality,
-        relatedVideos: relatedVideos.length > 100 ? relatedVideos.slice(0, 100) : relatedVideos,
-        pornstar: pornstar,
-        video_details: videodetails,
-        noVideos: noVideos,
-    })
+
+    res.json(result, {
+        status: 200,
+    });
+
+
 }
 
